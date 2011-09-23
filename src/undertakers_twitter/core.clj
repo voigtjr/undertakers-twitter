@@ -24,3 +24,9 @@
 
 ;; Find out who follows dons
 (twitter/followers-of-name "undertakersnovi")
+
+(defn -main [& m]
+  (let [ids (twitter/followers-of-name "undertakersnovi")
+        users (filter #(identity %) ids)
+        each (twitter/lookup-users-by-id (apply str (interpose "," users)))]
+    (for [x each] (println (:screen_name x)))))
