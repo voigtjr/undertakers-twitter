@@ -4,4 +4,6 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"
             :distribution :repo
             :comments "same as Clojure"}
-  :dependencies [[org.clojure/clojure "1.2.1"]])
+  :warn-on-reflection true
+  :dependencies [[org.clojure/clojure "1.2.1"]
+                 [clojure-twitter "1.2.5"]])
