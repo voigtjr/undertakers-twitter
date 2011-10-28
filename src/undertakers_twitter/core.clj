@@ -1,32 +1,28 @@
-(ns undertakers-twitter.core)
+(ns undertakers-twitter.core
+  (:use [clojure.contrib.duck-streams :only (read-lines)]
+        undertakers-twitter.utility
+        undertakers-twitter.twitif)
+  (:import [org.joda.time DateTime LocalDate]
+           [java.io File]))
 
-(require 'twitter
-  ['oauth.client :as 'oauth])
+(def date-regex #"^(\d{1,2})/(\d{1,2})/(\d{4})\s+(\d{2}):(\d{2})\s*$")
 
-;; Make a OAuth consumer
-(def oauth-consumer (oauth/make-consumer (System/getenv "UNDERTAKERS_KEY")
-  (System/getenv "UNDERTAKERS_SECRET")
-  "https://api.twitter.com/oauth/request_token"
-  "https://api.twitter.com/oauth/access_token"
-  "https://api.twitter.com/oauth/authorize"
-  :hmac-sha1))
+(defn parse-hockey-game-date [s]
+  (let [[month day year hour minute] (map parse-int (re-captures date-regex s))]
+    (DateTime. year month day hour minute)))
 
-;; token/secret
-(def oauth-access-token (System/getenv "UNDERTAKERSNOVI_TOKEN"))
+(defn today? [other-date]
+  (= (.toLocalDate other-date) (LocalDate/now)))
 
-(def oauth-access-token-secret (System/getenv "UNDERTAKERSNOVI_SECRET"))
+;; TODO handle two games on the same day
+;; (first sidesteps this issue by only returning one thing)
+(defn load-next-game [file]
+  (first (filter today? (load-schedule (resource file)))))
 
-;; Post to twitter
-;; (twitter/with-oauth oauth-consumer
-;;   oauth-access-token
-;;   oauth-access-token-secret
-;;   (twitter/update-status "posting from #clojure with #oauth"))
+(def post-reminder identity)
 
-;; Find out who follows dons
-(twitter/followers-of-name "undertakersnovi")
+(def schedule-file "schedule.txt")
 
-(defn -main [& m]
-  (let [ids (twitter/followers-of-name "undertakersnovi")
-        users (filter #(identity %) ids)
-        each (twitter/lookup-users-by-id (apply str (interpose "," users)))]
-    (for [x each] (println (:screen_name x)))))
+(defn -main [& _]
+  (if-let [game-info (load-next-game schedule-file)]
+    (post-reminder game-info)))
