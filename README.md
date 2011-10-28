@@ -1,16 +1,18 @@
 # undertakers-twitter
 
-Post's the result of each game with the next game's time on Wednesday.
+A cron job will call this on Sunday afternoon. It will check a data file for a
+date and game time.  If there is a game on that date, it'll post a nicely
+formatted reminder to Twitter about the game.
 
-Post a reminder on Sunday afternoon.
+# Data file format
 
-## Usage
+```
+10/30/2011 22:30
+11/6/2011 21:00
+11/13/2011 22:30
+```
 
-In the future, it will either run as some kind of dormant process or something
-poked awake by a cron job. We'll also have it going to some kind of database
-for the data in the future instead of having this stuff hard coded.
-
-## License
+# License
 
 Copyright (c) 2011 Jonathan Voigt and Frank Sinisaj
 All rights reserved
